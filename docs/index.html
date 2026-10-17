@@ -1,0 +1,524 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LogDoctor</title>
+<meta name="description" content="Paste a Minecraft server log or crash report and get a plain-English diagnosis and fix. Runs in your browser, nothing is uploaded.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2322c55e'/%3E%3Cpath d='M16 7v18M7 16h18' stroke='%23052e16' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E">
+<style>
+:root {
+  --bg: #f6f7f5;
+  --panel: #ffffff;
+  --panel-2: #eef1ec;
+  --text: #16201a;
+  --muted: #5b6b61;
+  --line: #d8dfd9;
+  --accent: #16a34a;
+  --accent-text: #ffffff;
+  --critical: #a21caf;
+  --error: #dc2626;
+  --warning: #b45309;
+  --info: #0369a1;
+  --ok: #16a34a;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e1411;
+    --panel: #151d18;
+    --panel-2: #1b2620;
+    --text: #e6efe9;
+    --muted: #93a79a;
+    --line: #26352c;
+    --accent: #22c55e;
+    --accent-text: #052e16;
+    --critical: #e879f9;
+    --error: #f87171;
+    --warning: #fbbf24;
+    --info: #38bdf8;
+    --ok: #4ade80;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0e1411;
+  --panel: #151d18;
+  --panel-2: #1b2620;
+  --text: #e6efe9;
+  --muted: #93a79a;
+  --line: #26352c;
+  --accent: #22c55e;
+  --accent-text: #052e16;
+  --critical: #e879f9;
+  --error: #f87171;
+  --warning: #fbbf24;
+  --info: #38bdf8;
+  --ok: #4ade80;
+}
+* { box-sizing: border-box; }
+html { color-scheme: light dark; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 16px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+.wrap { max-width: 880px; margin: 0 auto; padding: 0 16px 64px; }
+header { padding: 40px 0 20px; display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+h1 { margin: 0; font-size: 2rem; letter-spacing: -0.02em; }
+h1 span { color: var(--accent); }
+.tag { margin: 6px 0 0; color: var(--muted); max-width: 52ch; }
+.theme-btn { background: none; border: 1px solid var(--line); color: var(--muted); border-radius: 8px; padding: 6px 10px; cursor: pointer; font: inherit; font-size: 0.85rem; }
+.theme-btn:hover { color: var(--text); }
+button, select { font: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.input { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 12px; }
+.input.drag { border-color: var(--accent); background: var(--panel-2); }
+textarea {
+  width: 100%;
+  min-height: 190px;
+  resize: vertical;
+  background: transparent;
+  color: var(--text);
+  border: 0;
+  outline: 0;
+  font: 13px/1.5 var(--mono);
+}
+.bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; border-top: 1px solid var(--line); padding-top: 10px; margin-top: 6px; }
+.btn { border: 1px solid var(--line); background: var(--panel-2); color: var(--text); border-radius: 8px; padding: 7px 14px; cursor: pointer; }
+.btn:hover { border-color: var(--accent); }
+.btn.primary { background: var(--accent); color: var(--accent-text); border-color: var(--accent); font-weight: 600; }
+.spacer { flex: 1; }
+select.btn { max-width: 100%; }
+.hint { color: var(--muted); font-size: 0.85rem; }
+
+#result { margin-top: 28px; }
+.verdict { border: 1px solid var(--line); border-left-width: 6px; border-radius: 12px; background: var(--panel); padding: 16px 18px; }
+.verdict h2 { margin: 0; font-size: 1.25rem; }
+.verdict.ok { border-left-color: var(--ok); }
+.verdict.info { border-left-color: var(--info); }
+.verdict.warning { border-left-color: var(--warning); }
+.verdict.error { border-left-color: var(--error); }
+.verdict.critical { border-left-color: var(--critical); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.chip { background: var(--panel-2); border: 1px solid var(--line); border-radius: 999px; padding: 2px 10px; font-size: 0.82rem; color: var(--muted); }
+.culprits { margin-top: 10px; font-size: 0.92rem; color: var(--muted); }
+.culprits b { color: var(--text); }
+.actions { display: flex; gap: 8px; margin: 16px 0 6px; align-items: center; }
+
+.finding { margin-top: 14px; background: var(--panel); border: 1px solid var(--line); border-left-width: 5px; border-radius: 12px; padding: 14px 16px; }
+.finding.critical { border-left-color: var(--critical); }
+.finding.error { border-left-color: var(--error); }
+.finding.warning { border-left-color: var(--warning); }
+.finding.info { border-left-color: var(--info); }
+.finding h3 { margin: 0; font-size: 1.05rem; display: flex; flex-wrap: wrap; gap: 8px; align-items: baseline; }
+.sev { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+.finding.critical .sev { color: var(--critical); }
+.finding.error .sev { color: var(--error); }
+.finding.warning .sev { color: var(--warning); }
+.finding.info .sev { color: var(--info); }
+.times { color: var(--muted); font-weight: 400; font-size: 0.85rem; }
+.finding p { margin: 8px 0 0; }
+.fix-title { margin: 12px 0 2px; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--accent); }
+.finding ul { margin: 2px 0 0; padding-left: 20px; }
+.finding li { margin: 3px 0; }
+details { margin-top: 10px; }
+summary { cursor: pointer; color: var(--muted); font-size: 0.85rem; }
+pre { margin: 8px 0 0; padding: 10px 12px; background: var(--panel-2); border: 1px solid var(--line); border-radius: 8px; overflow-x: auto; font: 12px/1.5 var(--mono); white-space: pre; }
+.ln { color: var(--muted); user-select: none; }
+footer { margin-top: 48px; color: var(--muted); font-size: 0.85rem; border-top: 1px solid var(--line); padding-top: 16px; }
+footer a { color: var(--accent); }
+.sr { position: absolute; left: -9999px; }
+@media (max-width: 520px) { h1 { font-size: 1.6rem; } header { padding-top: 24px; } }
+.tabs { display: flex; gap: 6px; margin-bottom: 10px; }
+.tab { border: 1px solid var(--line); background: var(--panel); color: var(--muted); border-radius: 999px; padding: 6px 16px; cursor: pointer; }
+.tab[aria-selected="true"] { background: var(--accent); color: var(--accent-text); border-color: var(--accent); font-weight: 600; }
+.folder { text-align: center; padding: 34px 16px 22px; }
+.folder h2 { margin: 0 0 6px; font-size: 1.15rem; }
+.folder p { margin: 0 auto 16px; color: var(--muted); max-width: 54ch; }
+.folder .row { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+.progress { color: var(--muted); margin-top: 12px; font-size: 0.9rem; min-height: 1.3em; }
+.plan { margin-top: 14px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px 18px; }
+.plan h3 { margin: 0 0 6px; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--accent); }
+.plan ol { margin: 0; padding-left: 22px; }
+.plan li { margin: 5px 0; }
+.plan li span { color: var(--muted); font-size: 0.88rem; }
+.timeline { margin-top: 14px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 12px 18px; }
+.timeline h3 { margin: 0 0 6px; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+.tl { display: grid; grid-template-columns: 70px 12px 1fr; gap: 8px; align-items: baseline; font-size: 0.9rem; padding: 2px 0; }
+.tl time { color: var(--muted); font: 12px var(--mono); }
+.dot { width: 10px; height: 10px; border-radius: 50%; background: var(--muted); align-self: center; }
+.dot.critical { background: var(--critical); } .dot.error { background: var(--error); } .dot.warning { background: var(--warning); } .dot.ok { background: var(--ok); }
+.side { margin-top: 14px; }
+.side > summary { font-size: 0.95rem; padding: 6px 2px; }
+.badge { font-size: 0.72rem; border: 1px solid var(--line); border-radius: 999px; padding: 0 8px; color: var(--muted); font-weight: 400; }
+.dl { margin-top: 10px; }
+.src { font-size: 0.72rem; color: var(--muted); font-weight: 400; }
+.opts { display: flex; flex-wrap: wrap; gap: 8px 22px; justify-content: center; margin-top: 16px; font-size: 0.9rem; color: var(--muted); }
+.opts input[type="text"] { background: var(--panel-2); color: var(--text); border: 1px solid var(--line); border-radius: 6px; padding: 3px 6px; font: inherit; }
+.compat { margin-top: 14px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 12px 18px; overflow-x: auto; }
+.compat h3 { margin: 0 0 6px; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--accent); }
+.compat table { border-collapse: collapse; width: 100%; font-size: 0.9rem; }
+.compat td, .compat th { border-bottom: 1px solid var(--line); padding: 5px 8px; text-align: left; vertical-align: top; }
+.st { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+.st.broken { color: var(--error); } .st.risky, .st.check { color: var(--warning); } .st.ok { color: var(--ok); }
+.lead { margin-top: 28px; padding: 14px 18px; border: 1px dashed var(--line); border-radius: 12px; color: var(--muted); }</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Log<span>Doctor</span></h1>
+      <p class="tag">Drop in your whole Minecraft server folder, or a single log. It finds what is wrong, puts the fixes in order, and writes the corrected files.</p>
+    </div>
+    <button class="theme-btn" id="theme" type="button" aria-label="Toggle light or dark theme">Theme</button>
+  </header>
+
+  <main>
+    <div class="tabs" role="tablist">
+      <button class="tab" role="tab" id="tab-folder" aria-selected="true" type="button">Server folder</button>
+      <button class="tab" role="tab" id="tab-log" aria-selected="false" type="button">Single log</button>
+    </div>
+
+    <div class="input folder" id="panel-folder">
+      <h2>Audit the whole server</h2>
+      <p>Reads every plugin jar, your configs, server.properties, the start script and the latest log, all inside your browser. Nothing is uploaded.</p>
+      <div class="row">
+        <label class="btn primary" for="dir">Choose server folder</label>
+        <input id="dir" type="file" webkitdirectory multiple class="sr">
+        <button class="btn" id="demo" type="button">Try a demo server</button>
+      </div>
+      <div class="opts">
+        <label>Upgrade check, Minecraft version: <input id="target" type="text" placeholder="1.21.4" size="7" inputmode="decimal" aria-label="Minecraft version you plan to upgrade to"></label>
+        <label><input id="upd" type="checkbox"> Check plugins for updates on Modrinth (only file hashes are sent)</label>
+      </div>
+      <div class="hint" style="margin-top:12px">or drag the folder onto this box</div>
+      <div class="progress" id="progress" role="status"></div>
+    </div>
+
+    <div class="input" id="panel-log" hidden>
+      <label for="log" class="sr">Server log or crash report</label>
+      <textarea id="log" spellcheck="false" placeholder="Paste latest.log, a crash report, or an mclo.gs link here, or drop a file onto this box."></textarea>
+      <div class="bar">
+        <button class="btn primary" id="go" type="button">Diagnose</button>
+        <label class="btn" for="file">Open file</label>
+        <input id="file" type="file" accept=".log,.txt,.gz" class="sr">
+        <select class="btn" id="example" aria-label="Load an example"><option value="">Try an example</option></select>
+        <button class="btn" id="clear" type="button">Clear</button>
+        <span class="spacer"></span>
+        <span class="hint">Runs in your browser. Nothing is uploaded.</span>
+      </div>
+    </div>
+
+    <section id="result" aria-live="polite"></section>
+  </main>
+
+  <footer>
+    LogDoctor is open source (MIT). Missing a problem it should know about? Rules are small and easy to add, see CONTRIBUTING.md in the repository.
+  </footer>
+</div>
+
+<script src="packs.js"></script>
+<script src="rules.js"></script>
+<script src="engine.js"></script>
+<script src="zip.js"></script>
+<script src="yaml.js"></script>
+<script src="compat.js"></script>
+<script src="updates.js"></script>
+<script src="report-html.js"></script>
+<script src="audit.js"></script>
+<script src="samples.js"></script>
+<script src="site-config.js"></script>
+<script>
+(function () {
+  'use strict';
+  var $ = function (id) { return document.getElementById(id); };
+  var logBox = $('log'), result = $('result'), example = $('example'), progress = $('progress');
+  var SKIP = { node_modules: 1, '.git': 1, region: 1, entities: 1, poi: 1, playerdata: 1, stats: 1, advancements: 1, 'DIM-1': 1, DIM1: 1, cache: 1, libraries: 1, versions: 1, backups: 1, backup: 1 };
+
+  function el(tag, attrs, kids) {
+    var n = document.createElement(tag);
+    if (attrs) for (var k in attrs) { if (k === 'class') n.className = attrs[k]; else n.setAttribute(k, attrs[k]); }
+    (kids || []).forEach(function (c) { if (c) n.appendChild(typeof c === 'string' ? document.createTextNode(c) : c); });
+    return n;
+  }
+  function where(e) { return e.file ? e.file + (e.line ? ':' + e.line : '') : 'line ' + e.line; }
+
+  function download(name, content, type) {
+    var blob = new Blob([content], { type: type || 'text/plain' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = name;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+  }
+
+  function renderFinding(f) {
+    var head = el('h3', null, [el('span', { class: 'sev' }, [f.severity]), f.title]);
+    if (f.count > 1) head.appendChild(el('span', { class: 'times' }, ['x' + f.count]));
+    if (f.source === 'log' || f.source === 'crash') head.appendChild(el('span', { class: 'src' }, [f.source === 'log' ? 'from the log' : 'from the crash report']));
+    var box = el('article', { class: 'finding ' + f.severity }, [head]);
+    if (f.summary) box.appendChild(el('p', null, [f.summary]));
+    if (f.fix.length) {
+      box.appendChild(el('div', { class: 'fix-title' }, ['How to fix']));
+      box.appendChild(el('ul', null, f.fix.map(function (s) { return el('li', null, [s]); })));
+    }
+    if (f.fixFile) {
+      var b = el('button', { class: 'btn dl', type: 'button' }, ['Download fixed ' + f.fixFile.name]);
+      b.addEventListener('click', function () { download(f.fixFile.name, f.fixFile.content); });
+      box.appendChild(b);
+    }
+    if (f.evidence.length) {
+      var pre = el('pre');
+      f.evidence.forEach(function (e, i) {
+        if (i) pre.appendChild(document.createTextNode('\n'));
+        pre.appendChild(el('span', { class: 'ln' }, [where(e) + '  ']));
+        pre.appendChild(document.createTextNode(e.text));
+      });
+      box.appendChild(el('details', null, [el('summary', null, ['Show where']), pre]));
+    }
+    return box;
+  }
+
+  function render(r) {
+    result.textContent = '';
+    var chips = el('div', { class: 'chips' });
+    var i = r.info;
+    var bits = [i.software, i.modLoader, i.mcVersion && 'Minecraft ' + i.mcVersion, i.java && 'Java ' + i.java, i.plugins && i.plugins.length && i.plugins.length + ' plugins'];
+    if (r.scanned) bits.push(r.scanned.configs + ' configs', r.scanned.log ? 'latest.log read' : 'no latest.log');
+    else bits.push(r.lineCount + ' lines');
+    bits.filter(Boolean).forEach(function (t) { chips.appendChild(el('span', { class: 'chip' }, [String(t)])); });
+    var verdict = el('div', { class: 'verdict ' + r.verdictLevel }, [el('h2', null, [r.verdict]), chips]);
+    if (r.culprits && r.culprits.length) {
+      var c = el('div', { class: 'culprits' }, ['Plugins named in the errors: ']);
+      r.culprits.slice(0, 5).forEach(function (x, k) {
+        if (k) c.appendChild(document.createTextNode(', '));
+        c.appendChild(el('b', null, [x.plugin]));
+        c.appendChild(document.createTextNode(' (' + x.count + ')'));
+      });
+      verdict.appendChild(c);
+    }
+    result.appendChild(verdict);
+
+    if (r.plan && r.plan.length) {
+      var ol = el('ol');
+      r.plan.forEach(function (p) {
+        ol.appendChild(el('li', null, [p.title, p.reason ? el('span', null, ['  ' + p.reason]) : null]));
+      });
+      var head = 'Start here' + (r.planTotal > r.plan.length ? ' (' + r.plan.length + ' of ' + r.planTotal + ' problems)' : '');
+      result.appendChild(el('div', { class: 'plan' }, [el('h3', null, [head]), ol]));
+    }
+    if (r.compat) {
+      var tb = el('table', null, [el('tr', null, [el('th', null, ['Plugin']), el('th', null, ['Status']), el('th', null, ['Why'])])]);
+      r.compat.rows.forEach(function (row) {
+        tb.appendChild(el('tr', null, [el('td', null, [row.name + ' ' + row.version]), el('td', null, [el('span', { class: 'st ' + row.status }, [row.status])]), el('td', null, [row.reason])]));
+      });
+      result.appendChild(el('div', { class: 'compat' }, [el('h3', null, ['Upgrade check for Minecraft ' + r.compat.target + ' (needs Java ' + r.compat.java + ')']), tb]));
+    }
+    if (r.timeline && r.timeline.length > 1) {
+      var tl = el('div', { class: 'timeline' }, [el('h3', null, ['What happened'])]);
+      r.timeline.forEach(function (t) {
+        tl.appendChild(el('div', { class: 'tl' }, [el('time', null, [t.time || '']), el('span', { class: 'dot ' + t.severity }), el('span', null, [t.text])]));
+      });
+      result.appendChild(tl);
+    }
+
+    if (r.findings.length) {
+      var copy = el('button', { class: 'btn', type: 'button' }, ['Copy report as Markdown']);
+      copy.addEventListener('click', function () {
+        var md = LogDoctor.toMarkdown(r);
+        var done = function () { copy.textContent = 'Copied'; setTimeout(function () { copy.textContent = 'Copy report as Markdown'; }, 1500); };
+        if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(md).then(done, function () { fallbackCopy(md); done(); });
+        else { fallbackCopy(md); done(); }
+      });
+      var dl = el('button', { class: 'btn', type: 'button' }, ['Download report (.html)']);
+      dl.addEventListener('click', function () {
+        var cfg = window.LogDoctorConfig || {};
+        download('logdoctor-report.html', LogDoctorReport.toHtml(r, { contact: cfg.contact, date: new Date().toISOString().slice(0, 10) }), 'text/html');
+      });
+      result.appendChild(el('div', { class: 'actions' }, [dl, copy, el('span', { class: 'hint' }, ['Attach the file or paste the Markdown in Discord, a forum post, or an issue.'])]));
+    }
+    var main = r.findings.filter(function (f) { return !f.sideEffectOf && f.severity !== 'info'; });
+    var notes = r.findings.filter(function (f) { return !f.sideEffectOf && f.severity === 'info'; });
+    var side = r.findings.filter(function (f) { return f.sideEffectOf; });
+    main.forEach(function (f) { result.appendChild(renderFinding(f)); });
+    if (notes.length) {
+      var nd = el('details', { class: 'side' }, [el('summary', null, [notes.length + ' low-priority note' + (notes.length > 1 ? 's' : '')])]);
+      notes.forEach(function (f) { nd.appendChild(renderFinding(f)); });
+      result.appendChild(nd);
+    }
+    if (side.length) {
+      var d = el('details', { class: 'side' }, [el('summary', null, ['Likely side effects (' + side.length + '), they should disappear once the causes above are fixed'])]);
+      side.forEach(function (f) {
+        var card = renderFinding(f);
+        card.insertBefore(el('span', { class: 'badge' }, ['probably caused by ' + f.sideEffectOf]), card.firstChild.nextSibling);
+        d.appendChild(card);
+      });
+      result.appendChild(d);
+    }
+    var cfg2 = window.LogDoctorConfig || {};
+    if (cfg2.contact) result.appendChild(el('div', { class: 'lead' }, [cfg2.contact]));
+  }
+
+  function fallbackCopy(text) {
+    var t = document.createElement('textarea');
+    t.value = text; document.body.appendChild(t); t.select();
+    try { document.execCommand('copy'); } catch (e) { /* ignore */ }
+    document.body.removeChild(t);
+  }
+
+  function runLog(noScroll) {
+    var text = logBox.value;
+    if (!text.trim()) { result.textContent = ''; return; }
+    var ml = /^https?:\/\/(?:www\.)?mclo\.gs\/(\w+)\/?$/.exec(text.trim());
+    if (ml) {
+      result.textContent = 'Downloading the log from mclo.gs...';
+      fetch('https://api.mclo.gs/1/raw/' + ml[1]).then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.text(); }).then(function (t) { logBox.value = t; runLog(noScroll); }, function (e) { result.textContent = 'Could not download that mclo.gs log (' + e.message + '). Paste the log text instead.'; });
+      return;
+    }
+    render(LogDoctor.analyze(text));
+    if (noScroll !== true) result.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function runAudit(files, noScroll) {
+    progress.textContent = 'Reading ' + files.length + ' files...';
+    var target = $('target').value.trim();
+    if (target && !/^\d+(\.\d+){0,2}$/.test(target)) { progress.textContent = 'Use a version like 1.21.4 for the upgrade check.'; return Promise.resolve(); }
+    return LogDoctorAudit.auditServer(files, {
+      target: target || null,
+      checkUpdates: $('upd').checked,
+      onProgress: function (d, t) { progress.textContent = 'Checking plugin ' + d + ' of ' + t + '...'; }
+    }).then(function (r) {
+      progress.textContent = '';
+      render(r);
+      if (noScroll !== true) result.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, function (e) {
+      progress.textContent = 'Could not read that folder: ' + (e && e.message ? e.message : e);
+    });
+  }
+
+  function fromFileList(list) {
+    var out = [];
+    for (var k = 0; k < list.length; k++) {
+      var f = list[k];
+      var p = f.webkitRelativePath || f.name;
+      var skip = p.split('/').slice(0, -1).some(function (seg) { return SKIP[seg]; });
+      if (skip) continue;
+      out.push((function (file, path) {
+        return { path: path, size: file.size, read: function () { return file.arrayBuffer().then(function (b) { return new Uint8Array(b); }); } };
+      })(f, p));
+    }
+    return out;
+  }
+
+  function walkEntry(entry, prefix, out) {
+    return new Promise(function (resolve) {
+      if (entry.isFile) {
+        entry.file(function (file) {
+          out.push({ path: prefix + entry.name, size: file.size, read: function () { return file.arrayBuffer().then(function (b) { return new Uint8Array(b); }); } });
+          resolve();
+        }, resolve);
+      } else if (entry.isDirectory && !SKIP[entry.name]) {
+        var reader = entry.createReader();
+        var all = [];
+        (function readBatch() {
+          reader.readEntries(function (batch) {
+            if (!batch.length) {
+              Promise.all(all.map(function (e) { return walkEntry(e, prefix + entry.name + '/', out); })).then(resolve);
+            } else { all = all.concat(Array.prototype.slice.call(batch)); readBatch(); }
+          }, resolve);
+        })();
+      } else resolve();
+    });
+  }
+
+  function b64ToBytes(b64) {
+    var bin = atob(b64), bytes = new Uint8Array(bin.length);
+    for (var k = 0; k < bin.length; k++) bytes[k] = bin.charCodeAt(k);
+    return bytes;
+  }
+
+  function showTab(name) {
+    var folder = name === 'folder';
+    $('tab-folder').setAttribute('aria-selected', String(folder));
+    $('tab-log').setAttribute('aria-selected', String(!folder));
+    $('panel-folder').hidden = !folder;
+    $('panel-log').hidden = folder;
+    result.textContent = '';
+  }
+  $('tab-folder').addEventListener('click', function () { showTab('folder'); });
+  $('tab-log').addEventListener('click', function () { showTab('log'); });
+
+  $('dir').addEventListener('change', function (e) { runAudit(fromFileList(e.target.files)); e.target.value = ''; });
+  $('demo').addEventListener('click', function () {
+    var files = (window.LogDoctorDemoServer || []).map(function (f) {
+      var bytes = b64ToBytes(f.b64);
+      return { path: 'DemoServer/' + f.path, size: bytes.length, read: function () { return Promise.resolve(bytes); } };
+    });
+    runAudit(files, window.__noScroll === true);
+  });
+
+  var dropFolder = $('panel-folder');
+  ['dragenter', 'dragover'].forEach(function (ev) { dropFolder.addEventListener(ev, function (e) { e.preventDefault(); dropFolder.classList.add('drag'); }); });
+  ['dragleave', 'drop'].forEach(function (ev) { dropFolder.addEventListener(ev, function (e) { e.preventDefault(); dropFolder.classList.remove('drag'); }); });
+  dropFolder.addEventListener('drop', function (e) {
+    var items = e.dataTransfer.items;
+    var out = [];
+    var jobs = [];
+    for (var k = 0; k < items.length; k++) {
+      var entry = items[k].webkitGetAsEntry && items[k].webkitGetAsEntry();
+      if (entry) jobs.push(walkEntry(entry, '', out));
+    }
+    progress.textContent = 'Listing files...';
+    Promise.all(jobs).then(function () { return runAudit(out); });
+  });
+
+  // single log
+  function readFile(file) {
+    if (!file) return;
+    if (/\.gz$/i.test(file.name)) {
+      if (typeof DecompressionStream === 'undefined') { alert('This browser cannot open .gz files. Unzip the log first.'); return; }
+      new Response(file.stream().pipeThrough(new DecompressionStream('gzip'))).text().then(function (t) { logBox.value = t; runLog(); });
+      return;
+    }
+    var reader = new FileReader();
+    reader.onload = function () { logBox.value = String(reader.result); runLog(); };
+    reader.readAsText(file);
+  }
+  $('go').addEventListener('click', function () { runLog(); });
+  $('clear').addEventListener('click', function () { logBox.value = ''; result.textContent = ''; logBox.focus(); });
+  $('file').addEventListener('change', function (e) { readFile(e.target.files[0]); e.target.value = ''; });
+  logBox.addEventListener('paste', function () { setTimeout(runLog, 0); });
+  var dropLog = $('panel-log');
+  ['dragenter', 'dragover'].forEach(function (ev) { dropLog.addEventListener(ev, function (e) { e.preventDefault(); dropLog.classList.add('drag'); }); });
+  ['dragleave', 'drop'].forEach(function (ev) { dropLog.addEventListener(ev, function (e) { e.preventDefault(); dropLog.classList.remove('drag'); }); });
+  dropLog.addEventListener('drop', function (e) { readFile(e.dataTransfer.files[0]); });
+
+  (window.LogDoctorSamples || []).forEach(function (s, i) { example.appendChild(el('option', { value: String(i) }, [s.label])); });
+  example.addEventListener('change', function () {
+    if (example.value === '') return;
+    logBox.value = window.LogDoctorSamples[+example.value].text;
+    example.value = '';
+    runLog();
+  });
+
+  var q = /[?&]example=(\d+)/.exec(location.search);
+  if (q && window.LogDoctorSamples && window.LogDoctorSamples[+q[1]]) { showTab('log'); logBox.value = window.LogDoctorSamples[+q[1]].text; runLog(true); }
+  var tq = /[?&]target=([\d.]+)/.exec(location.search);
+  if (tq) $('target').value = tq[1];
+  if (/[?&]demo\b/.test(location.search)) { window.__noScroll = true; $('demo').click(); }
+
+  var themeBtn = $('theme');
+  try { var saved = localStorage.getItem('logdoctor-theme'); if (saved) document.documentElement.setAttribute('data-theme', saved); } catch (e) { /* storage blocked */ }
+  themeBtn.addEventListener('click', function () {
+    var cur = document.documentElement.getAttribute('data-theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    try { localStorage.setItem('logdoctor-theme', next); } catch (e) { /* storage blocked */ }
+  });
+})();
+</script>
+</body>
+</html>

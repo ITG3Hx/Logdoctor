@@ -1,0 +1,26 @@
+﻿---- Minecraft Crash Report ----
+// Why did you do that?
+
+Time: 2026-10-02 18:44:09
+Description: Ticking entity
+
+java.lang.NullPointerException: Ticking entity
+	at net.minecraft.server.level.ServerLevel.tickNonPassenger(ServerLevel.java:812) ~[paper-1.21.1.jar:1.21.1-132]
+	at net.minecraft.server.level.ServerLevel.tick(ServerLevel.java:590) ~[paper-1.21.1.jar:1.21.1-132]
+
+A detailed walkthrough of the error, its code path and all known details is as follows:
+---------------------------------------------------------------------------------------
+
+-- Entity being ticked --
+Details:
+	Entity Type: minecraft:villager (net.minecraft.world.entity.npc.Villager)
+	Entity ID: 4521
+	Entity Name: Villager
+	Entity's Exact location: 120.50, 64.00, -340.50
+	Entity's Block location: World: (120,64,-341), Section: (at 8,0,3 in 7,4,-22; chunk contains blocks 112,-64,-352 to 127,319,-337)
+
+-- System Details --
+Details:
+	Minecraft Version: 1.21.1
+	Operating System: Linux (amd64) version 5.15.0
+	Java Version: 21.0.4, Eclipse Adoptium

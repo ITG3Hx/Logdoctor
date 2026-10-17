@@ -1,0 +1,16 @@
+[02:11:40] [Paper Watchdog Thread/ERROR]: --- DO NOT REPORT THIS TO PAPER - THIS IS NOT A BUG OR A CRASH  - 1.21.4-224-a1b2c3d ---
+[02:11:40] [Paper Watchdog Thread/ERROR]: The server has not responded for 10 seconds! Creating thread dump
+[02:11:40] [Paper Watchdog Thread/ERROR]: ------------------------------
+[02:11:40] [Paper Watchdog Thread/ERROR]: Server thread dump (Look for plugins here before reporting to Paper!):
+[02:11:40] [Paper Watchdog Thread/ERROR]: Current Thread: Server thread
+[02:11:40] [Paper Watchdog Thread/ERROR]: 	PID: 45 | Suspended: false | Native: false | State: RUNNABLE
+[02:11:40] [Paper Watchdog Thread/ERROR]: 	Stack:
+[02:11:40] [Paper Watchdog Thread/ERROR]: 		java.base@21.0.5/java.util.HashMap.getNode(HashMap.java:575)
+[02:11:40] [Paper Watchdog Thread/ERROR]: 		com.example.chestsort.ChestSort.scan(ChestSort.java:112)
+[02:11:40] [Paper Watchdog Thread/ERROR]: 		com.example.chestsort.listener.InvListener.onClick(InvListener.java:44)
+[02:11:40] [Paper Watchdog Thread/ERROR]: 		org.bukkit.plugin.EventExecutor$1.execute(EventExecutor.java:70)
+[02:11:40] [Paper Watchdog Thread/ERROR]: 		net.minecraft.server.MinecraftServer.tickServer(MinecraftServer.java:1100)
+[02:11:40] [Paper Watchdog Thread/ERROR]: ------------------------------
+[02:11:50] [Paper Watchdog Thread/ERROR]: The server has stopped responding! This is (probably) not a Paper bug.
+[02:11:50] [Paper Watchdog Thread/ERROR]: If you see a plugin in the Server thread dump below, then please report it to that plugin's author, not to Paper.
+[02:11:55] [Server thread/ERROR]: Encountered an unexpected exception

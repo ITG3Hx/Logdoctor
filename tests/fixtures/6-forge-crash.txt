@@ -1,0 +1,28 @@
+---- Minecraft Crash Report ----
+// Why did you do that?
+
+Time: 2025-03-01 18:22:11 UTC
+Description: Exception in server tick loop
+
+java.lang.IllegalStateException: Failed to load registries due to above errors
+	at net.minecraft.server.MinecraftServer.tickServer(MinecraftServer.java:100)
+	at com.example.biomemod.worldgen.BiomeRegistry.register(BiomeRegistry.java:55)
+	at mezz.jei.common.Internal.get(Internal.java:20)
+
+A detailed walkthrough of the error, its code path and all known details is as follows:
+---------------------------------------------------------------------------------------
+
+-- System Details --
+Details:
+	Minecraft Version: 1.20.1
+	Minecraft Version ID: 1.20.1
+	Operating System: Linux (amd64) version 5.15
+	Java Version: 17.0.9, Eclipse Adoptium
+	Memory: 1024 bytes (0 MiB) / 2147483648 bytes (2048 MiB) up to 2147483648 bytes (2048 MiB)
+	Forge: net.minecraftforge:47.2.0
+	ModLauncher: 10.0.9+10.0.9+main.dcd20f30
+	Crash Report UUID: 11111111-2222-3333-4444-555555555555
+	FML: 47.2
+	Mod List:
+		jei-1.20.1-forge-15.3.0.4.jar |Just Enough Items |jei |15.3.0.4 |DONE |Manifest: NOSIGNATURE
+		biomemod-1.0.jar |Biome Mod |biomemod |1.0 |DONE |Manifest: NOSIGNATURE

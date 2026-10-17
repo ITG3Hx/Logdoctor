@@ -1,0 +1,22 @@
+﻿[03:14:01 INFO]: Starting minecraft server version 1.20.4
+[03:14:01 INFO]: This server is running Paper version git-Paper-496 (MC: 1.20.4) (Implementing API version 1.20.4-R0.1-SNAPSHOT)
+[03:14:20 INFO]: [Vulcan] Enabling Vulcan v2.8
+[03:14:20 INFO]: [Grim] Enabling Grim v2.3
+[03:14:20 INFO]: [PermissionsEx] Enabling PermissionsEx v1.23
+[03:14:20 INFO]: [LuckPerms] Enabling LuckPerms v5.4
+[03:14:30 INFO]: Done (18.2s)! For help, type "help"
+[04:55:10 ERROR]: Encountered an unexpected exception
+[04:55:10 WARN]: Can't keep up! Is the server overloaded? Running 61204ms or 1224 ticks behind
+[04:56:15 ERROR]: --- DO NOT REPORT THIS TO PAPER! THIS IS NOT A BUG OR A CRASH  - git-Paper-496 (MC: 1.20.4) ---
+[04:56:15 ERROR]: The server has stopped responding! This is (probably) not a Paper bug.
+[04:56:15 ERROR]: If you see a plugin in the Server thread dump below, then please report it to that author
+[04:56:15 ERROR]: 	*Especially* if it looks like HopperOptimizer is the cause.
+[04:56:15 ERROR]: Server Watchdog Thread dump:
+[04:56:15 ERROR]: Current Thread: Server thread
+[04:56:15 ERROR]: 	PID: 31 | Name: Server thread
+	java.base@17.0.9/java.util.HashMap.getNode(HashMap.java:568)
+	at HopperOptimizer-1.8.jar//dev.hopperopt.Cache.lookup(Cache.java:212)
+	at HopperOptimizer-1.8.jar//dev.hopperopt.HopperListener.onMove(HopperListener.java:66)
+	at net.minecraft.world.level.block.entity.HopperBlockEntity.tryMoveItems(HopperBlockEntity.java:380)
+[04:56:16 ERROR]: A single server tick took 60.00 seconds (should be max 0.05)
+[04:56:16 ERROR]: Considering it to be crashed, server will forcibly shutdown.

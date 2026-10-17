@@ -1,0 +1,117 @@
+{
+  "pack": "core-extra",
+  "description": "Common Paper and Bukkit errors. One object per rule, with a fixture that must trigger it.",
+  "rules": [
+    {
+      "id": "direct-memory",
+      "severity": "error",
+      "title": "Out of direct (off-heap) memory",
+      "match": "OutOfDirectMemoryError|OutOfMemoryError: Direct buffer memory",
+      "explain": "Network buffers ran out of space. This is separate from the normal heap, so raising -Xmx does not help. A plugin that handles packets, or a flood of traffic, usually causes it.",
+      "fix": [
+        "Restart the server, then update packet plugins such as ProtocolLib and anti-exploit plugins.",
+        "Add -XX:MaxDirectMemorySize=1G (or larger) to the start command.",
+        "If it keeps coming back, find the plugin with a spark profile and look at who allocates buffers."
+      ],
+      "fixture": "[10:00:00 ERROR]: java.lang.OutOfMemoryError: Direct buffer memory"
+    },
+    {
+      "id": "bad-resource-location",
+      "severity": "error",
+      "title": "Invalid name used by a plugin or datapack: {1}",
+      "match": "Non \\[a-z0-9[^\\]]*\\] character in (?:path|namespace) of location: (\\S+)",
+      "key": 1,
+      "explain": "Something used the name \"{1}\", but Minecraft names may only use lowercase letters, digits and _ - . / characters. Uppercase letters and spaces are the usual mistake.",
+      "fix": [
+        "Rename the item, key, recipe or function to lowercase with no spaces.",
+        "If a plugin created it, update that plugin or report it to the author."
+      ],
+      "fixture": "[10:00:00 ERROR]: net.minecraft.ResourceLocationException: Non [a-z0-9/._-] character in path of location: minecraft:MyKey"
+    },
+    {
+      "id": "plugin-already-initialized",
+      "severity": "error",
+      "title": "Plugin was initialised twice",
+      "match": "IllegalArgumentException: Plugin already initialized",
+      "explain": "A plugin tried to create a second copy of itself. Either two jars of the same plugin are installed, or the plugin has a bug where it builds its own main class.",
+      "fix": [
+        "Look in the plugins folder for two jars of the same plugin and delete the older one.",
+        "If there is only one, update the plugin or report it to the author."
+      ],
+      "fixture": "[10:00:00 ERROR]: java.lang.IllegalArgumentException: Plugin already initialized!"
+    },
+    {
+      "id": "zip-file-closed",
+      "severity": "error",
+      "title": "A plugin jar was replaced while the server was running",
+      "flags": "i",
+      "match": "IllegalStateException: zip file closed|ZipFile closed",
+      "explain": "The server tried to read a class from a jar that was swapped or deleted after startup. Plugins stop working in strange ways until the server restarts.",
+      "fix": [
+        "Restart the server.",
+        "Never swap or update plugin jars while the server is running, and do not use /reload."
+      ],
+      "fixture": "[10:00:00 ERROR]: java.lang.IllegalStateException: zip file closed"
+    },
+    {
+      "id": "task-while-disabled",
+      "severity": "warning",
+      "title": "A plugin tried to schedule work after it was disabled",
+      "match": "IllegalPluginAccessException: Plugin attempted to register task while disabled",
+      "explain": "A plugin that had already been switched off tried to start a task. This is a follow-on error. The real problem is whatever disabled the plugin earlier in the log.",
+      "fix": [
+        "Scroll up to find the first error from this plugin, usually \"Error occurred while enabling\" or a crash, and fix that."
+      ],
+      "fixture": "[10:00:00 ERROR]: org.bukkit.plugin.IllegalPluginAccessException: Plugin attempted to register task while disabled"
+    },
+    {
+      "id": "no-handler-list",
+      "severity": "error",
+      "title": "Plugin listens for an event that does not exist: {1}",
+      "match": "Unable to find handler list for event (\\S+)",
+      "key": 1,
+      "explain": "A plugin tried to listen to {1}, which this server does not provide. The plugin is for a different server software or version, or the event comes from a plugin that is not installed.",
+      "fix": [
+        "Check the plugin supports your server software (Paper, Spigot, Purpur) and version.",
+        "If the event belongs to another plugin, install that plugin."
+      ],
+      "fixture": "[10:00:00 ERROR]: Unable to find handler list for event com.example.FooEvent. Static getHandlerList method required!"
+    },
+    {
+      "id": "skipping-entity",
+      "severity": "info",
+      "title": "World contains entities that no longer exist: {1}",
+      "match": "Skipping Entity with id (\\S+)",
+      "key": 1,
+      "explain": "Entities of type {1} were saved in the world but nothing provides them any more, usually because a plugin or mod was removed. They are skipped and disappear.",
+      "fix": [
+        "No action needed. Reinstall the plugin or mod if you want those entities back."
+      ],
+      "fixture": "[10:00:00 WARN]: Skipping Entity with id minecraft:oldmob"
+    },
+    {
+      "id": "block-entity-load-failed",
+      "severity": "info",
+      "title": "Blocks of type {1} could not be loaded",
+      "match": "Tried to load a block entity for block (\\S+) but failed at location",
+      "key": 1,
+      "explain": "The world has {1} blocks with saved data, but the block no longer behaves like that type. This follows a version change or a removed plugin and is harmless once the block is replaced.",
+      "fix": [
+        "No action needed. If a chest or sign lost its contents, restore that area from a backup."
+      ],
+      "fixture": "[10:00:00 WARN]: Tried to load a block entity for block Block{minecraft:chest} but failed at location BlockEntityType"
+    },
+    {
+      "id": "newer-world-version",
+      "severity": "critical",
+      "title": "World was saved by a newer Minecraft version",
+      "match": "saved with newer version of minecraft! (\\d+) > (\\d+)",
+      "explain": "The world data version is {1}, but this server only understands up to {2}. Minecraft worlds cannot be opened by an older version after they were upgraded.",
+      "fix": [
+        "Run the server on the Minecraft version the world was last saved with, or newer.",
+        "Or restore a world backup made before the upgrade."
+      ],
+      "fixture": "[10:00:00 ERROR]: java.lang.RuntimeException: Server attempted to load chunk saved with newer version of minecraft! 3955 > 3837"
+    }
+  ]
+}

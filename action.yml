@@ -1,0 +1,17 @@
+name: LogDoctor
+description: Audit a Minecraft server folder or log and fail the build on errors
+inputs:
+  path:
+    description: Server folder or log file to check
+    default: .
+  fail-on:
+    description: Lowest severity that fails the step (critical, error, warning, info)
+    default: error
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-node@v4
+      with:
+        node-version: 20
+    - run: node "${{ github.action_path }}/bin/logdoctor.js" "${{ inputs.path }}" --fail-on "${{ inputs.fail-on }}" --no-color
+      shell: bash

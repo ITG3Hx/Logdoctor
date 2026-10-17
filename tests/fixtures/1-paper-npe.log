@@ -1,0 +1,20 @@
+[12:00:01] [ServerMain/INFO]: Environment: Environment[sessionHost=https://sessionserver.mojang.com, servicesHost=https://api.minecraftservices.com, name=PROD]
+[12:00:03] [ServerMain/INFO]: Loaded 1290 recipes
+[12:00:04] [Server thread/INFO]: Starting minecraft server version 1.21.4
+[12:00:04] [Server thread/INFO]: Loading properties
+[12:00:04] [Server thread/INFO]: This server is running Paper version 1.21.4-224-main@a1b2c3d (2025-03-01T12:00:00Z) (Implementing API version 1.21.4-R0.1-SNAPSHOT)
+[12:00:06] [Server thread/INFO]: [SpigotLibraryLoader] [Shop] Loading 2 libraries... please wait
+[12:00:07] [Server thread/INFO]: [ShopPlus] Loading ShopPlus v3.4.1
+[12:00:07] [Server thread/INFO]: [Vault] Loading Vault v1.7.3-b131
+[12:00:09] [Server thread/INFO]: [ShopPlus] Enabling ShopPlus v3.4.1
+[12:00:09] [Server thread/ERROR]: Error occurred while enabling ShopPlus v3.4.1 (Is it up to date?)
+java.lang.NullPointerException: Cannot invoke "net.milkbowl.vault.economy.Economy.getName()" because "this.economy" is null
+	at ShopPlus-3.4.1.jar/com.example.shopplus.ShopPlus.onEnable(ShopPlus.java:58) ~[ShopPlus-3.4.1.jar:?]
+	at org.bukkit.plugin.java.JavaPlugin.setEnabled(JavaPlugin.java:279) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at io.papermc.paper.plugin.manager.PaperPluginInstanceManager.enablePlugin(PaperPluginInstanceManager.java:200) ~[paper-1.21.4.jar:1.21.4-224-a1b2c3d]
+[12:00:09] [Server thread/INFO]: [ShopPlus] Disabling ShopPlus v3.4.1
+[12:00:10] [Server thread/INFO]: Done (5.912s)! For help, type "help"
+[12:00:15] [Server thread/WARN]: [ShopPlus] Plugin ShopPlus v3.4.1 generated an exception while executing command 'shop'
+org.bukkit.command.CommandException: Unhandled exception executing command 'shop' in plugin ShopPlus v3.4.1
+	at org.bukkit.command.PluginCommand.execute(PluginCommand.java:47) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+Caused by: java.lang.IllegalStateException: Plugin not enabled

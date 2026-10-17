@@ -1,0 +1,16 @@
+[10:21:03 INFO]: Starting minecraft server version 1.8.8
+[10:21:03 INFO]: Loading properties
+[10:21:04 INFO]: This server is running CraftBukkit version git-Spigot-21fe707-e1ebe52 (MC: 1.8.8) (Implementing API version 1.8.8-R0.1-SNAPSHOT)
+[10:21:05 INFO]: [Essentials] Loading Essentials v2.9.5
+[10:21:07 INFO]: [Essentials] Enabling Essentials v2.9.5
+[10:21:08 WARN]: [Essentials] Permissions lag notice with (PermissionsEx)
+[10:21:09 ERROR]: Could not load 'plugins/Dynmap.jar' in folder 'plugins'
+org.bukkit.plugin.InvalidPluginException: java.lang.UnsupportedClassVersionError: org/dynmap/DynmapPlugin : Unsupported major.minor version 52.0
+	at org.bukkit.plugin.java.JavaPluginLoader.loadPlugin(JavaPluginLoader.java:150) ~[spigot.jar:git-Spigot-21fe707-e1ebe52]
+[10:21:12 INFO]: Done (8.2s)! For help, type "help" or "?"
+[10:30:00 WARN]: Can't keep up! Did the system time change, or is the server overloaded? Running 2120ms behind, skipping 42 tick(s)
+[10:31:44 WARN]: java.lang.OutOfMemoryError: Java heap space
+[10:31:44 INFO]: java.net.BindException: Address already in use: JVM_Bind
+[10:31:44 WARN]: **** FAILED TO BIND TO PORT!
+[10:31:44 WARN]: The exception was: java.net.BindException: Address already in use: JVM_Bind
+[10:31:44 WARN]: Perhaps a server is already running on that port?

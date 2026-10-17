@@ -1,0 +1,9 @@
+[16:00:02 INFO] [com.velocitypowered.proxy.Velocity]: Booting up Velocity 3.4.0-SNAPSHOT (git-abc-b400)...
+[16:00:03 INFO] [com.velocitypowered.proxy.plugin.VelocityPluginManager]: Loaded plugin luckperms 5.4.150 by Luck
+[16:00:04 ERROR] [com.velocitypowered.proxy.plugin.VelocityPluginManager]: Can't load plugin /plugins/oldchat.jar
+com.velocitypowered.api.plugin.InvalidPluginException: Plugin class not found
+[16:00:05 INFO] [com.velocitypowered.proxy.Velocity]: Listening on /0.0.0.0:25565
+[16:03:11 INFO] [com.velocitypowered.proxy.connection.client.InitialLoginSessionHandler]: [initial connection] /1.2.3.4:51234 has connected
+[16:03:12 ERROR] [com.velocitypowered.proxy.connection.backend.VelocityServerConnection]: Unable to connect to server lobby: io.netty.channel.AbstractChannel$AnnotatedConnectException: Connection refused: localhost/127.0.0.1:25566
+[16:03:12 INFO] [com.velocitypowered.proxy.connection.client.ConnectedPlayer]: [connected player] Steve (/1.2.3.4:51234) has disconnected: Unable to connect you to lobby. Please try again later.
+[16:05:00 INFO] [com.velocitypowered.proxy.connection.client.ConnectedPlayer]: Steve disconnected: If you wish to use IP forwarding, please enable it in your BungeeCord config as well!

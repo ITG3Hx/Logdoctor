@@ -1,0 +1,18 @@
+{
+  "name": "logdoctor",
+  "version": "2.0.0",
+  "description": "Audit a Minecraft server folder or read a crash log. Finds the cause, orders the fixes, and writes the corrected files.",
+  "bin": { "logdoctor": "bin/logdoctor.js" },
+  "main": "src/engine.js",
+  "files": ["bin", "src", "rules", "README.md", "LICENSE"],
+  "scripts": {
+    "build": "node scripts/build.js",
+    "test": "node scripts/build.js && node --test tests/engine.test.js tests/audit.test.js tests/features.test.js"
+  },
+  "keywords": ["minecraft", "paper", "spigot", "bukkit", "fabric", "forge", "log", "crash-report", "server", "audit", "debugging"],
+  "license": "MIT",
+  "repository": { "type": "git", "url": "git+https://github.com/ITG3Hx/logdoctor.git" },
+  "homepage": "https://itg3hx.github.io/logdoctor/",
+  "author": "ITG3Hx",
+  "engines": { "node": ">=18" }
+}

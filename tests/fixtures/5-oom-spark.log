@@ -1,0 +1,11 @@
+[21:00:00] [Server thread/INFO]: This server is running Paper version 1.20.6-148-ver/1.20.6@e1d7a2f (Implementing API version 1.20.6-R0.1-SNAPSHOT)
+[21:00:00] [Server thread/INFO]: Done (11.3s)! For help, type "help"
+[21:44:10] [Server thread/WARN]: [spark] Server tick monitor: Tick #884211 took 4500.12ms (avg 51.2ms)
+[21:44:11] [Server thread/WARN]: Can't keep up! Is the server overloaded? Running 8201ms or 164 ticks behind
+[21:45:02] [Netty Epoll Server IO #3/ERROR]: Exception in thread "Netty Epoll Server IO #3" java.lang.OutOfMemoryError: Java heap space
+[21:45:02] [Server thread/ERROR]: Exception in thread "Server thread"
+java.lang.OutOfMemoryError: GC overhead limit exceeded
+	at java.base/java.util.Arrays.copyOf(Arrays.java:3512) ~[?:?]
+	at WorldEdit-bukkit-7.3.5.jar//com.sk89q.worldedit.bukkit.BukkitWorld.setBlock(BukkitWorld.java:300) ~[WorldEdit-bukkit-7.3.5.jar:?]
+[21:45:03] [Server thread/INFO]: [spark] GC pauses: G1 Young 12 times avg 38ms; G1 Old 9 times avg 3200ms
+[21:45:04] [Server thread/ERROR]: This crash report has been saved to: /home/mc/crash-reports/crash-2025-03-01_21.45.04-server.txt
